@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\Downloads\\WPF2022\\audioanaly\\audioanaly.csproj": {}
+    "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\Downloads\\WPF2022\\audioanaly\\audioanaly.csproj": {
+    "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Downloads\\WPF2022\\audioanaly\\audioanaly.csproj",
+        "projectUniqueName": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj",
         "projectName": "audioanaly",
-        "projectPath": "C:\\Users\\User\\Downloads\\WPF2022\\audioanaly\\audioanaly.csproj",
+        "projectPath": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Downloads\\WPF2022\\audioanaly\\obj\\",
+        "outputPath": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

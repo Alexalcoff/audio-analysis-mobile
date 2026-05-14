@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Numerics;
 using NAudio.Wave;
 using MathNet.Numerics.IntegralTransforms;
+using System.Text.Json;
 
 
-        //заметки на будущее
-        //звук передается в виде массива амплитуд сигналов в разные промежутки времени (номеры положения амплитуды по порядку)
-        //sample rate - измерение сигнала в секунду (Герцы)
-        //
+//заметки на будущее
+//звук передается в виде массива амплитуд сигналов в разные промежутки времени (номеры положения амплитуды по порядку)
+//sample rate - измерение сигнала в секунду (Герцы)
+//
 
 public class AudioSimilarityAnalyzer
 {
@@ -186,24 +187,13 @@ public class AudioSimilarityAnalyzer
     }
 }
 
-    // =========================
-    // 9. CONSOLE ENTRY POINT
-    // =========================
-class Program
-{
-    static void Main(string[] args)
-    {
-        Console.WriteLine("Audio similarity analyzer");
-
-        Console.Write("File A: ");
-        string a = Console.ReadLine();
-
-        Console.Write("File B: ");
-        string b = Console.ReadLine();
-
-        double result = AudioSimilarityAnalyzer.Compare(a, b);
-
-        Console.WriteLine($"DTW distance: {result}");
-        Console.WriteLine("Lower = more similar");
-    }
-}
+// =========================
+// 9. CONSOLE ENTRY POINT
+// =========================
+class Program { static void Main(string[] args) { try { string filePath = args[0]; 
+            // Пока заглушка:
+            // позже здесь будет реальный анализ
+            var result = new { title = "Unknown", similarity = 0.82, frames = 1240 }; 
+            Console.WriteLine( JsonSerializer.Serialize(result) ); 
+        } catch (Exception ex) { Console.Error.WriteLine(ex.Message); 
+            Environment.Exit(1); } } }
