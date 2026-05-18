@@ -88,6 +88,19 @@ public class AudioSimilarityAnalyzer
             chroma[note] += (float)fft[i].Magnitude;
         }
 
+        float norm = 0;
+
+        for (int i = 0; i < 12; i++)
+            norm += chroma[i] * chroma[i];
+
+        norm = (float)Math.Sqrt(norm);
+
+        if (norm > 0)
+        {
+            for (int i = 0; i < 12; i++)
+                chroma[i] /= norm;
+        }
+
         return chroma;
     }
 
@@ -134,10 +147,12 @@ public class AudioSimilarityAnalyzer
 
     //каждая клетка хранит минимальную стоимость пути
     // =========================
-    public static double DTW(List<float[]> A, List<float[]> B)
+    /*public static double DTW(List<float[]> A, List<float[]> B)
     {
         int n = A.Count;
         int m = B.Count;
+
+
 
         double[,] dp = new double[n, m]; //Dynamic Programmic matrix
 
@@ -166,7 +181,53 @@ public class AudioSimilarityAnalyzer
             }
         }
 
-        return dp[n - 1, m - 1]; //ищет лучший путь сопоставления двух последовательностей
+        return dp[n - 1, m - 1]/(m+n); //ищет лучший путь сопоставления двух последовательностей
+    }*/
+
+    public static double DTW(List<float[]> A, List<float[]> B)
+    {
+        int n = A.Count;
+        int m = B.Count;
+
+        int w = Math.Max(10, Math.Abs(n - m) + 50); // Sakoe-Chiba window
+
+        double[] prev = new double[m];
+        double[] curr = new double[m];
+
+        for (int j = 0; j < m; j++)
+            prev[j] = double.MaxValue;
+
+        prev[0] = Distance(A[0], B[0]);
+
+        for (int i = 1; i < n; i++)
+        {
+            for (int j = 0; j < m; j++)
+                curr[j] = double.MaxValue;
+
+            int start = Math.Max(0, i - w);
+            int end = Math.Min(m - 1, i + w);
+
+            for (int j = start; j <= end; j++)
+            {
+                double cost = Distance(A[i], B[j]);
+
+                double minPrev = prev[j];
+
+                if (j > 0)
+                    minPrev = Math.Min(minPrev, curr[j - 1]);
+
+                if (j > 0)
+                    minPrev = Math.Min(minPrev, prev[j - 1]);
+
+                curr[j] = cost + minPrev;
+            }
+
+            var temp = prev;
+            prev = curr;
+            curr = temp;
+        }
+
+        return prev[m - 1] / (m + n);
     }
 
     // =========================
@@ -185,15 +246,56 @@ public class AudioSimilarityAnalyzer
 
         return DTW(chromaA, chromaB);
     }
+
+    public static List<float[]> Extraction(string fileA)
+    {
+        var samplesA = LoadAudio(fileA);
+
+        using var r1 = new AudioFileReader(fileA);
+
+        var chromaA = ExtractChromaSequence(samplesA, r1.WaveFormat.SampleRate);
+
+        return chromaA;
+    }
+}
+
+public class TrackFeatures
+{
+    public string Title { get; set; }
+
+    public string Artist { get; set; }
+
+    public string FilePath { get; set; }
+
+    public int SampleRate { get; set; }
+
+    public int FrameSize { get; set; }
+
+    public int HopSize { get; set; }
+
+    public List<float[]> ChromaSequence { get; set; }
 }
 
 // =========================
 // 9. CONSOLE ENTRY POINT
 // =========================
-class Program { static void Main(string[] args) { try { string filePath = args[0]; 
+class Program 
+{ 
+    static void Main(string[] args) 
+    {
+        /*try 
+        { 
+            string filePath = args[0]; 
             // Пока заглушка:
             // позже здесь будет реальный анализ
             var result = new { title = "Unknown", similarity = 0.82, frames = 1240 }; 
             Console.WriteLine( JsonSerializer.Serialize(result) ); 
         } catch (Exception ex) { Console.Error.WriteLine(ex.Message); 
-            Environment.Exit(1); } } }
+            Environment.Exit(1); 
+        } */
+        string fileA = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\Fallen down on my handmade piano! [ZjipSUkV2l4].mp3";
+        //string fileB = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\Fallen down on my handmade piano! [ZjipSUkV2l4].mp3";
+        string fileB = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\kris_piano_waitingroom - Deltarune Chapter 4 [MEXiaOHeYEU].mp3";
+        Console.WriteLine(AudioSimilarityAnalyzer.Compare(fileA, fileB));
+    } 
+}
