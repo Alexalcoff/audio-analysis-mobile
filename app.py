@@ -1,23 +1,3 @@
-"""from fastapi import FastAPI, UploadFile, File
-
-app = FastAPI()
-
-@app.get("/")
-def home():
-    return {"status": "server running"}
-
-@app.post("/recognize")
-async def recognize(file: UploadFile = File(...)):
-    audio = await file.read()
-
-    print(f"Received file size: {len(audio)} bytes")
-
-    return {
-        "title": "Test Song",
-        "artist": "Test Artist",
-        "youtube_link": "https://music.youtube.com/watch?v=test"
-    }
-"""
 from fastapi import FastAPI, UploadFile, File
 import tempfile
 import subprocess
@@ -26,8 +6,16 @@ import json
 
 app = FastAPI()
 
-# Путь до C# анализатора
-ANALYZER_PATH = "./audio_analyzer/AudioAnalyzer.exe"
+# =====================================
+# НАДЁЖНЫЙ ПУТЬ
+# =====================================
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+ANALYZER_PATH = os.path.join(
+    BASE_DIR,
+    "audioanaly","bin","Debug","net8.0","audioanaly.exe"
+)
 
 @app.get("/")
 def home():
@@ -36,57 +24,61 @@ def home():
 @app.post("/recognize")
 async def recognize(file: UploadFile = File(...)):
 
-    # =====================================
-    # 1. СОЗДАЕМ ВРЕМЕННЫЙ ФАЙЛ
-    # =====================================
-
     suffix = os.path.splitext(file.filename)[1]
+
+    # =====================================
+    # TEMP FILE
+    # =====================================
 
     with tempfile.NamedTemporaryFile(
         delete=False,
         suffix=suffix
     ) as temp_audio:
 
-        content = await file.read()
-        temp_audio.write(content)
-
+        temp_audio.write(await file.read())
         temp_path = temp_audio.name
-
-    print(f"Saved temp file: {temp_path}")
 
     try:
 
         # =====================================
-        # 2. ЗАПУСКАЕМ C# АНАЛИЗАТОР
+        # RUN ANALYZER (SAFE)
         # =====================================
 
         result = subprocess.run(
-            [
-                ANALYZER_PATH,
-                temp_path
-            ],
+            [ANALYZER_PATH, temp_path],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60  
         )
 
         # =====================================
-        # 3. ПРОВЕРКА ОШИБОК
+        # ERROR CHECK
         # =====================================
 
         if result.returncode != 0:
             return {
-                "error": "Analyzer crashed",
-                "details": result.stderr
+                "status": "error",
+                "stderr": result.stderr[-1000:]  # ограничение
             }
 
-        print("Analyzer output:")
-        print(result.stdout)
+        stdout = result.stdout.strip()
 
         # =====================================
-        # 4. ПАРСИНГ JSON
+        # SAFETY PARSE
         # =====================================
 
-        analysis = json.loads(result.stdout)
+        try:
+            analysis = json.loads(stdout)
+        except Exception:
+            return {
+                "status": "error",
+                "message": "Invalid JSON from analyzer",
+                "raw_output": stdout[-2000:]
+            }
+
+        # =====================================
+        # RESPONSE
+        # =====================================
 
         return {
             "status": "ok",
@@ -94,10 +86,5 @@ async def recognize(file: UploadFile = File(...)):
         }
 
     finally:
-
-        # =====================================
-        # 5. УДАЛЕНИЕ ВРЕМЕННОГО ФАЙЛА
-        # =====================================
-
         if os.path.exists(temp_path):
             os.remove(temp_path)

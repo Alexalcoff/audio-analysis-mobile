@@ -4,6 +4,9 @@ using System.Numerics;
 using NAudio.Wave;
 using MathNet.Numerics.IntegralTransforms;
 using System.Text.Json;
+using System.IO;
+using System.Linq;
+using NAudio.Utils;
 
 
 //заметки на будущее
@@ -230,6 +233,245 @@ public class AudioSimilarityAnalyzer
         return prev[m - 1] / (m + n);
     }
 
+    public static double CosineSimilarity( //Сравнивание по векторам, скалярное проищведение поделенное на две нормы
+    double[] a,
+    double[] b)
+    {
+        double dot = 0;
+        double normA = 0;
+        double normB = 0;
+
+        for (int i = 0; i < a.Length; i++)
+        {
+            dot += a[i] * b[i];
+            normA += a[i] * a[i];
+            normB += b[i] * b[i];
+        }
+
+        if (normA == 0 || normB == 0)
+            return 0;
+
+        return dot /
+            (Math.Sqrt(normA) * Math.Sqrt(normB));
+    }
+
+    public static double[] MergeFeatures(    //Обьединение нескольких векторов в один
+    TrackFeatures t)
+    {
+        List<double> v = new();
+
+        // MeanChroma
+        foreach (var x in t.MeanChroma)
+            v.Add(x);
+
+        // MFCC
+        foreach (var x in t.MeanMFCC)
+            v.Add(x);
+
+        // Delta MFCC
+        foreach (var x in t.DeltaMFCCMean)
+            v.Add(x);
+
+        // Energy
+        v.Add(t.Energy);
+
+        return v.ToArray();
+    }
+
+    public static List<float[]> LoadChromaFromBin(         //Получение информации из бинарников трека
+    string path)
+    {
+        using var br =
+            new BinaryReader(
+                File.OpenRead(path));
+
+        int count = br.ReadInt32();
+
+        var result =
+            new List<float[]>();
+
+        for (int i = 0; i < count; i++)
+        {
+            float[] frame = new float[12];
+
+            for (int j = 0; j < 12; j++)
+            {
+                frame[j] =
+                    br.ReadByte() / 255f;
+            }
+
+            result.Add(frame);
+        }
+
+        return result;
+    }
+
+    public static List<Candidate>
+FindTopCandidates(             //поиск топ 10  по косиносному преобразовани.
+    TrackFeatures query,
+    string jsonFolder,
+    int top = 10)
+    {
+        var result =
+            new List<Candidate>();
+
+        string[] jsons =
+            Directory.GetFiles(
+                jsonFolder,
+                "*.json");
+
+        double[] q =
+            MergeFeatures(query);
+
+        foreach (string json in jsons)
+        {
+            try
+            {
+                var track =
+                    JsonSerializer.Deserialize<TrackFeatures>(
+                        File.ReadAllText(json));
+
+                double[] v =
+                    MergeFeatures(track);
+
+                double sim =
+                    CosineSimilarity(q, v);
+
+                result.Add(
+                    new Candidate
+                    {
+                        Track = track,
+                        Score = sim
+                    });
+            }
+            catch
+            {
+
+            }
+        }
+
+        return result
+            .OrderByDescending(x => x.Score)
+            .Take(top)
+            .ToList();
+    }
+
+    public static string FindBestMatches(
+    string queryFile,
+    string jsonFolder, string binFolder)
+    {
+        var results =
+            new List<SearchResult>();
+
+        // ============================
+        // QUERY
+        // ============================
+
+        var samples =
+            LoadAudio(queryFile);
+
+        using var reader =
+            new AudioFileReader(queryFile);
+
+        int sr =
+            reader.WaveFormat.SampleRate;
+
+        var chroma =
+            ExtractChromaSequence(samples, sr);
+
+        // ============================
+        // MEAN CHROMA
+        // ============================
+
+        float[] meanChroma =
+            new float[12];
+
+        foreach (var c in chroma)
+        {
+            for (int i = 0; i < 12; i++)
+                meanChroma[i] += c[i];
+        }
+
+        for (int i = 0; i < 12; i++)
+            meanChroma[i] /= chroma.Count;
+
+        var query =
+            new TrackFeatures
+            {
+                MeanChroma = meanChroma,
+                MeanMFCC = new double[13],
+                DeltaMFCCMean = new double[13],
+                Energy =
+                    samples
+                    .Select(x => x * x)
+                    .Average()
+            };
+
+        // ============================
+        // FAST SEARCH
+        // ============================
+
+        var top =
+            FindTopCandidates(
+                query,
+                jsonFolder,
+                10);
+
+        // ============================
+        // DTW
+        // ============================
+
+        foreach (var x in top)
+        {
+            try
+            {
+                string binPath =
+                    Path.Combine(
+                        binFolder,
+                        x.Track.BinFile);
+
+                var other =
+                    LoadChromaFromBin(binPath);
+
+                double dtw =
+                    DTW(chroma, other);
+
+                results.Add(
+                    new SearchResult
+                    {
+                        Title =
+                            x.Track.Title,
+
+                        Similarity =
+                            1.0 / (1.0 + dtw),
+
+                        StreamUrl =
+                            x.Track.StreamUrl
+                    });
+            }
+            catch
+            {
+
+            }
+        }
+
+        // ============================
+        // SORT
+        // ============================
+
+        results =
+            results
+            .OrderByDescending(x => x.Similarity)
+            .ToList();
+
+        return JsonSerializer.Serialize(
+            results,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+    }
+
     // =========================
     // 8. MAIN COMPARISON API
     // =========================
@@ -247,6 +489,60 @@ public class AudioSimilarityAnalyzer
         return DTW(chromaA, chromaB);
     }
 
+
+    public static double[] Merging(string fileA)
+    {
+        bool alreadyProcessed = false;
+
+        string[] existingJsons =
+            Directory.GetFiles("json/", "*.json");
+
+        double[] d = new double[5];
+
+        foreach (string json in existingJsons)
+        {
+            try
+            {
+                var existing =
+                    JsonSerializer.Deserialize<TrackFeatures>(
+                        File.ReadAllText(json));
+
+                //if (existing.Title == Path.GetFileName(file))
+                if (!string.IsNullOrWhiteSpace(existing?.AudioPath))
+                {
+                    if (
+                        Path.GetFileNameWithoutExtension(existing.AudioPath)
+                        ==
+                        Path.GetFileNameWithoutExtension(fileA)
+                    )
+                    {
+                        alreadyProcessed = true;
+                        break;
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+        }
+        return d;
+    }
+
+    public static double[] PowerSpectrum(Complex[] fft)
+    {
+        int half = fft.Length / 2;
+        double[] power = new double[half];
+
+        for (int i = 0; i < half; i++)
+        {
+            double mag = fft[i].Magnitude;
+            power[i] = mag * mag;
+        }
+
+        return power;
+    }
+
     public static List<float[]> Extraction(string fileA)
     {
         var samplesA = LoadAudio(fileA);
@@ -261,11 +557,15 @@ public class AudioSimilarityAnalyzer
 
 public class TrackFeatures
 {
+    public int Id { get; set; }
+
     public string Title { get; set; }
 
     public string Artist { get; set; }
 
-    public string FilePath { get; set; }
+    public string AudioPath { get; set; }
+
+    public string StreamUrl { get; set; }
 
     public int SampleRate { get; set; }
 
@@ -273,7 +573,31 @@ public class TrackFeatures
 
     public int HopSize { get; set; }
 
-    public List<float[]> ChromaSequence { get; set; }
+    public float[] MeanChroma { get; set; }
+
+    public double[] MeanMFCC { get; set; }
+
+    public double[] DeltaMFCCMean { get; set; }
+
+    public double Energy { get; set; }
+
+    public string BinFile { get; set; }
+}
+
+public class SearchResult
+{
+    public string Title { get; set; }
+
+    public double Similarity { get; set; }
+
+    public string StreamUrl { get; set; }
+}
+
+public class Candidate
+{
+    public TrackFeatures Track { get; set; }
+
+    public double Score { get; set; }
 }
 
 // =========================
@@ -293,9 +617,32 @@ class Program
         } catch (Exception ex) { Console.Error.WriteLine(ex.Message); 
             Environment.Exit(1); 
         } */
-        string fileA = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\Fallen down on my handmade piano! [ZjipSUkV2l4].mp3";
+        /*string fileA = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\Fallen down on my handmade piano! [ZjipSUkV2l4].mp3";
         //string fileB = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\Fallen down on my handmade piano! [ZjipSUkV2l4].mp3";
         string fileB = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\kris_piano_waitingroom - Deltarune Chapter 4 [MEXiaOHeYEU].mp3";
-        Console.WriteLine(AudioSimilarityAnalyzer.Compare(fileA, fileB));
+        Console.WriteLine(AudioSimilarityAnalyzer.Compare(fileA, fileB));*/
+
+            string jsonFolder =
+                Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "json");
+
+        string binFolder =
+                Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "bin");
+
+        string queryFile =
+                Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    "test.mp3");
+
+            string result =
+                AudioSimilarityAnalyzer
+                .FindBestMatches(
+                    queryFile,
+                    jsonFolder, binFolder);
+
+            Console.WriteLine(result);
+        }
     } 
-}

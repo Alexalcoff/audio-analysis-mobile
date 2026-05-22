@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|c:\\users\\user\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|solutionrelative:audioanaly.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|c:\\users\\user\\source\\repos\\audio-analysis-mobile\\audioanaly\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -18,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -27,6 +31,18 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "audioanaly",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj",
+              "RelativeDocumentMoniker": "audioanaly.csproj",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj",
+              "RelativeToolTip": "audioanaly.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-05-21T19:35:45.671Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Bookmark",
@@ -42,7 +58,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Duplicatore.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Duplicatore.cs",
               "RelativeDocumentMoniker": "Duplicatore.cs",
@@ -50,18 +66,17 @@
               "RelativeToolTip": "Duplicatore.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-18T18:01:31.569Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-18T18:01:31.569Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAALUAAAAAAAAAAAAcwOYAAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAAEECAAAAAAAAAAAEwEcCAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-03T14:47:30.433Z",
               "EditorCaption": ""
