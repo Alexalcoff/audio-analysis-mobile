@@ -141,7 +141,7 @@ async def recognize(file: UploadFile = File(...)):
             ],
             capture_output=True,
             text=True,
-            timeout=120
+            timeout=3000
         )
 
         print("ANALYZER RETURN:", result.returncode)
