@@ -458,24 +458,40 @@ public class AudioSimilarityAnalyzer
     public static double[] MergeFeatures(    //Обьединение нескольких векторов в один
     TrackFeatures t)
     {
-        List<double> v = new();
+        List<double> v1 = new(), v2 = new(), v3 = new();
+
 
         // MeanChroma
         foreach (var x in t.MeanChroma)
-            v.Add(x);
+            v1.Add(x);
 
         // MFCC
         foreach (var x in t.MeanMFCC)
-            v.Add(x);
+            v2.Add(x);
 
         // Delta MFCC
         foreach (var x in t.DeltaMFCCMean)
-            v.Add(x);
+            v3.Add(x);
 
-        // Energy
-        v.Add(t.Energy);
+        double[] v11 = v1.ToArray();
+        double[] v22 = v2.ToArray();
+        double[] v33 = v3.ToArray();
 
-        return v.ToArray();
+        v11 = Normalize(v11);
+        v22 = Normalize(v22);
+        v33 = Normalize(v33);
+
+        List<double> combined = new();
+
+        combined.AddRange(v11);
+        combined.AddRange(v22);
+        combined.AddRange(v33);
+
+        double[] finalVector = combined.ToArray();
+
+        combined.Add(t.Energy);
+
+        return combined.ToArray();
     }
 
     public static List<float[]> LoadChromaFromBin(         //Получение информации из бинарников трека
