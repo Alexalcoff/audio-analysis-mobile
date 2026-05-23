@@ -7,6 +7,8 @@ using System.Text.Json;
 using System.IO;
 using System.Linq;
 using NAudio.Utils;
+using NAudio.Wave.SampleProviders;
+using static System.Net.WebRequestMethods;
 
 
 //заметки на будущее
@@ -22,19 +24,76 @@ public class AudioSimilarityAnalyzer
     // =========================
     public static float[] LoadAudio(string path)
     {
-        using var reader = new AudioFileReader(path); //открывает файл и декодирует сжатый звук выдавая данные PCM (Pulse Code Modulation)
+        WaveStream reader;
 
-        var samples = new List<float>();
-        float[] buffer = new float[reader.WaveFormat.SampleRate]; //логичное продолжение
+        string ext =
+            Path.GetExtension(path).ToLower();
 
-        int read;
-        while ((read = reader.Read(buffer, 0, buffer.Length)) > 0)
+        if (ext == ".mp3")
         {
-            for (int i = 0; i < read; i++)
-                samples.Add(buffer[i]);
+            reader = new Mp3FileReader(path);
+        }
+        else if (ext == ".m4a")
+        {
+            reader = new WaveFileReader(path);
+        }
+        else
+        {
+            throw new Exception(
+                "Unsupported format: " + ext);
         }
 
-        return samples.ToArray(); //на выходе цифровой сигнал
+        using (reader)
+        {
+            ISampleProvider sampleProvider =
+                reader.ToSampleProvider();
+
+            List<float> samples =
+                new List<float>();
+
+            float[] buffer = new float[4096];
+
+            int read;
+
+            while ((read =
+                sampleProvider.Read(
+                    buffer,
+                    0,
+                    buffer.Length)) > 0)
+            {
+                for (int i = 0; i < read; i++)
+                    samples.Add(buffer[i]);
+            }
+
+            return samples.ToArray();
+        }
+    }
+
+    public static int GetSampleRate(string path)
+    {
+        string ext =
+            Path.GetExtension(path).ToLower();
+
+        WaveStream reader;
+
+        if (ext == ".mp3")
+        {
+            reader = new Mp3FileReader(path);
+        }
+        else if (ext == ".wav")
+        {
+            reader = new WaveFileReader(path);
+        }
+        else
+        {
+            throw new Exception(
+                "Unsupported format");
+        }
+
+        using (reader)
+        {
+            return reader.WaveFormat.SampleRate;
+        }
     }
 
     // =========================
@@ -283,7 +342,7 @@ public class AudioSimilarityAnalyzer
     {
         using var br =
             new BinaryReader(
-                File.OpenRead(path));
+                System.IO.File.OpenRead(path));
 
         int count = br.ReadInt32();
 
@@ -329,7 +388,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
             {
                 var track =
                     JsonSerializer.Deserialize<TrackFeatures>(
-                        File.ReadAllText(json));
+                        System.IO.File.ReadAllText(json));
 
                 double[] v =
                     MergeFeatures(track);
@@ -370,14 +429,22 @@ FindTopCandidates(             //поиск топ 10  по косиносном
         var samples =
             LoadAudio(queryFile);
 
-        using var reader =
-            new AudioFileReader(queryFile);
+        //using var reader =
+        //  new AudioFileReader(queryFile);
 
-        int sr =
-            reader.WaveFormat.SampleRate;
+        //int sr =
+        //  reader.WaveFormat.SampleRate;
+
+        //var chroma =
+        //  ExtractChromaSequence(samples, sr);
+
+        int sampleRate =
+    GetSampleRate(queryFile);
 
         var chroma =
-            ExtractChromaSequence(samples, sr);
+            ExtractChromaSequence(
+                samples,
+                sampleRate);
 
         // ============================
         // MEAN CHROMA
@@ -480,11 +547,27 @@ FindTopCandidates(             //поиск топ 10  по косиносном
         var samplesA = LoadAudio(fileA);
         var samplesB = LoadAudio(fileB);
 
-        using var r1 = new AudioFileReader(fileA);
-        using var r2 = new AudioFileReader(fileB);
+        //using var r1 = new AudioFileReader(fileA);
+        //using var r2 = new AudioFileReader(fileB);
 
-        var chromaA = ExtractChromaSequence(samplesA, r1.WaveFormat.SampleRate);
-        var chromaB = ExtractChromaSequence(samplesB, r2.WaveFormat.SampleRate);
+        int sampleRateA =
+    GetSampleRate(fileA);
+
+        var chromaA =
+            ExtractChromaSequence(
+                samplesA,
+                sampleRateA);
+
+        int sampleRateB =
+    GetSampleRate(fileB);
+
+        var chromaB =
+            ExtractChromaSequence(
+                samplesB,
+                sampleRateB);
+
+        //var chromaA = ExtractChromaSequence(samplesA, r1.WaveFormat.SampleRate);
+        //var chromaB = ExtractChromaSequence(samplesB, r2.WaveFormat.SampleRate);
 
         return DTW(chromaA, chromaB);
     }
@@ -505,7 +588,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
             {
                 var existing =
                     JsonSerializer.Deserialize<TrackFeatures>(
-                        File.ReadAllText(json));
+                        System.IO.File.ReadAllText(json));
 
                 //if (existing.Title == Path.GetFileName(file))
                 if (!string.IsNullOrWhiteSpace(existing?.AudioPath))
@@ -547,9 +630,17 @@ FindTopCandidates(             //поиск топ 10  по косиносном
     {
         var samplesA = LoadAudio(fileA);
 
-        using var r1 = new AudioFileReader(fileA);
+        //using var r1 = new AudioFileReader(fileA);
 
-        var chromaA = ExtractChromaSequence(samplesA, r1.WaveFormat.SampleRate);
+        int sampleRate =
+    GetSampleRate(fileA);
+
+        var chromaA =
+            ExtractChromaSequence(
+                samplesA,
+                sampleRate);
+
+        //var chromaA = ExtractChromaSequence(samplesA, r1.WaveFormat.SampleRate);
 
         return chromaA;
     }

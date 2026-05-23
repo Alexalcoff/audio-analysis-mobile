@@ -1,0 +1,14 @@
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\audioanaly.exe
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\audioanaly.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\audioanaly.deps.json
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\audioanaly.runtimeconfig.json
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\audioanaly.pdb
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\MathNet.Numerics.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\NAudio.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\NAudio.Asio.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\NAudio.Core.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\NAudio.Midi.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\NAudio.Wasapi.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\NAudio.WinMM.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\NLayer.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\publish\NLayer.NAudioSupport.dll
