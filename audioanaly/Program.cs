@@ -319,7 +319,7 @@ public class AudioSimilarityAnalyzer
         return dp[n - 1, m - 1]/(m+n); //ищет лучший путь сопоставления двух последовательностей
     }*/
 
-    public static double DTW(List<float[]> A, List<float[]> B)
+    /*public static double DTW(List<float[]> A, List<float[]> B)
     {
         int n = A.Count;
         int m = B.Count;
@@ -362,7 +362,75 @@ public class AudioSimilarityAnalyzer
             curr = temp;
         }
 
-        return prev[m - 1] / (m + n);
+        return prev[m - 1]/m;
+    }*/
+
+
+    public static double DTW(List<float[]> A, List<float[]> B)
+    {
+        int n = A.Count;
+        int m = B.Count;
+
+        int w = Math.Max(10, Math.Abs(n - m) + 50);
+
+        double[] prev = new double[m];
+        double[] curr = new double[m];
+
+        int[] prevLen = new int[m];
+        int[] currLen = new int[m];
+
+        // init
+        for (int j = 0; j < m; j++)
+        {
+            prev[j] = double.MaxValue;
+            prevLen[j] = 0;
+        }
+
+        prev[0] = Distance(A[0], B[0]);
+        prevLen[0] = 1;
+
+        for (int i = 1; i < n; i++)
+        {
+            for (int j = 0; j < m; j++)
+            {
+                curr[j] = double.MaxValue;
+                currLen[j] = 0;
+            }
+
+            int start = Math.Max(0, i - w);
+            int end = Math.Min(m - 1, i + w);
+
+            for (int j = start; j <= end; j++)
+            {
+                double cost = Distance(A[i], B[j]);
+
+                double bestCost = prev[j];
+                int bestLen = prevLen[j];
+
+                if (j > 0 && curr[j - 1] < bestCost)
+                {
+                    bestCost = curr[j - 1];
+                    bestLen = currLen[j - 1];
+                }
+
+                if (j > 0 && prev[j - 1] < bestCost)
+                {
+                    bestCost = prev[j - 1];
+                    bestLen = prevLen[j - 1];
+                }
+
+                curr[j] = cost + bestCost;
+                currLen[j] = bestLen + 1;
+            }
+
+            var tmp = prev; prev = curr; curr = tmp;
+            var tmpL = prevLen; prevLen = currLen; currLen = tmpL;
+        }
+
+        double finalCost = prev[m - 1];
+        int finalLen = Math.Max(1, prevLen[m - 1]);
+
+        return finalCost / finalLen;
     }
 
     public static double CosineSimilarity( //Сравнивание по векторам, скалярное проищведение поделенное на две нормы
