@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Numerics;
 using NAudio.Wave;
@@ -18,7 +18,7 @@ using System.Diagnostics;
 //
 
 public class AudioSimilarityAnalyzer
-{
+{*/
     // =========================
     // 1. LOAD AUDIO (PCM)
     //функция открывает аудио файл, декодирует его из предыдущего формата в массив чисел
@@ -118,7 +118,7 @@ public class AudioSimilarityAnalyzer
         return samples.ToArray();
     }*/
 
-
+    /*
     public static float[] LoadAudio(string path)
     {
         using var reader =
@@ -271,7 +271,7 @@ public class AudioSimilarityAnalyzer
 
         return Math.Sqrt(sum); //норма по евклиду, ну соответствено если ноты похожи то и расстояние маленькое
     }
-
+    */
     // =========================
     // 7. DTW (Dynamic Time Warping) растяжение по времени в простонаречье
     //ЕСЛИ:
@@ -365,7 +365,7 @@ public class AudioSimilarityAnalyzer
         return prev[m - 1]/m;
     }*/
 
-
+    /*
     public static double DTW(List<float[]> A, List<float[]> B)
     {
         int n = A.Count;
@@ -520,7 +520,7 @@ public class AudioSimilarityAnalyzer
         }
 
         return result;
-    }
+    }*/
 
     /*public static List<Candidate>
 FindTopCandidates(             //поиск топ 10  по косиносному преобразовани.
@@ -571,7 +571,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
             .Take(top)
             .ToList();
     }*/
-
+/*
     private static double[] Normalize(double[] v)
     {
         double mean = v.Average();
@@ -654,7 +654,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
             .ThenBy(x => Guid.NewGuid()) // ломает "залипание" при равных score
             .Take(top)
             .ToList();
-    }
+    }*/
 
     /*public static string FindBestMatches(
     string queryFile,
@@ -779,7 +779,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
                 WriteIndented = true
             });
     }*/
-
+/*
     public static string FindBestMatches(
     string queryFile,
     string jsonFolder,
@@ -1025,9 +1025,9 @@ FindTopCandidates(             //поиск топ 10  по косиносном
         //var chromaB = ExtractChromaSequence(samplesB, r2.WaveFormat.SampleRate);
 
         return DTW(chromaA, chromaB);
-    }
+    }*/
 
-
+/*
     public static double[] Merging(string fileA)
     {
         bool alreadyProcessed = false;
@@ -1144,7 +1144,7 @@ public class Candidate
     public TrackFeatures Track { get; set; }
 
     public double Score { get; set; }
-}
+}*/
 
 // =========================
 // 9. CONSOLE ENTRY POINT

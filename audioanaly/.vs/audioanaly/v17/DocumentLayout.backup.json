@@ -26,24 +26,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "FileName.cs",
-              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\FileName.cs",
-              "RelativeDocumentMoniker": "FileName.cs",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\FileName.cs",
-              "RelativeToolTip": "FileName.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4CAAAgAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-23T15:57:43.738Z",
-              "EditorCaption": ""
             },
             {
               "$type": "Bookmark",
@@ -67,6 +54,19 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "FileName.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\FileName.cs",
+              "RelativeDocumentMoniker": "FileName.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\FileName.cs",
+              "RelativeToolTip": "FileName.cs",
+              "ViewState": "AgIAAOUCAAAAAAAAAAASwPQCAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-23T15:57:43.738Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
               "Title": "audioanaly",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj",
@@ -74,7 +74,8 @@
               "ToolTip": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj",
               "RelativeToolTip": "audioanaly.csproj",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-05-21T19:35:45.671Z"
+              "WhenOpened": "2026-05-21T19:35:45.671Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -96,7 +97,7 @@
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAJoEAAAAAAAAAAAmwLUEAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-03T14:47:30.433Z",
               "EditorCaption": ""
