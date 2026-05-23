@@ -3,8 +3,13 @@ import tempfile
 import subprocess
 import os
 import json
+import traceback
 
 app = FastAPI()
+
+# =========================================
+# PATHS
+# =========================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,10 +24,19 @@ ANALYZER_PATH = os.path.join(
     "audioanaly"
 )
 
+# =========================================
+# HEALTHCHECK
+# =========================================
+
 @app.get("/")
 def home():
-    return {"status": "server running"}
+    return {
+        "status": "server running"
+    }
 
+# =========================================
+# MAIN ENDPOINT
+# =========================================
 
 @app.post("/recognize")
 async def recognize(file: UploadFile = File(...)):
@@ -30,74 +44,177 @@ async def recognize(file: UploadFile = File(...)):
     temp_path = None
     wav_path = None
 
-
-    print(os.listdir(os.path.dirname(ANALYZER_PATH)))
-    
     try:
-        # 1. SAVE FILE
+
+        # =====================================
+        # DEBUG INFO
+        # =====================================
+
+        print("=== REQUEST START ===")
+        print("FILE NAME:", file.filename)
+        print("ANALYZER PATH:", ANALYZER_PATH)
+        print("ANALYZER EXISTS:", os.path.exists(ANALYZER_PATH))
+
+        if os.path.exists(os.path.dirname(ANALYZER_PATH)):
+            print(
+                "ANALYZER DIR CONTENT:",
+                os.listdir(os.path.dirname(ANALYZER_PATH))
+            )
+
+        # =====================================
+        # SAVE INPUT FILE
+        # =====================================
+
         suffix = os.path.splitext(file.filename)[1]
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-            tmp.write(await file.read())
-            temp_path = tmp.name
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=suffix
+        ) as tmp:
 
-        temp_path = os.path.abspath(temp_path)
+            content = await file.read()
+            tmp.write(content)
+
+            temp_path = os.path.abspath(tmp.name)
+
+        print("TEMP PATH:", temp_path)
+        print("TEMP EXISTS:", os.path.exists(temp_path))
+
+        # =====================================
+        # WAV OUTPUT
+        # =====================================
+
         wav_path = temp_path + ".wav"
 
-        # 2. CONVERT
-        ffmpeg = subprocess.run(
-            ["ffmpeg", "-y", "-i", temp_path, wav_path],
+        # =====================================
+        # FFMPEG CONVERT
+        # =====================================
+
+        ffmpeg_result = subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-i",
+                temp_path,
+                wav_path
+            ],
             capture_output=True,
             text=True
         )
 
-        if ffmpeg.returncode != 0:
+        print("FFMPEG RETURN:", ffmpeg_result.returncode)
+        print("FFMPEG STDERR:", ffmpeg_result.stderr)
+
+        if ffmpeg_result.returncode != 0:
             return {
                 "status": "error",
                 "stage": "ffmpeg",
-                "stderr": ffmpeg.stderr[-2000:]
+                "stderr": ffmpeg_result.stderr[-3000:]
             }
 
-        if not os.path.exists(wav_path):
-            return {"status": "error", "stage": "wav_missing"}
+        print("WAV EXISTS:", os.path.exists(wav_path))
+        print("WAV PATH:", wav_path)
 
-        # 3. RUN ANALYZER
+        if not os.path.exists(wav_path):
+            return {
+                "status": "error",
+                "stage": "wav_missing"
+            }
+
+        # =====================================
+        # MAKE ANALYZER EXECUTABLE
+        # =====================================
+
+        try:
+            os.chmod(ANALYZER_PATH, 0o755)
+        except Exception as chmod_error:
+            print("CHMOD ERROR:", str(chmod_error))
+
+        # =====================================
+        # RUN ANALYZER
+        # =====================================
+
         result = subprocess.run(
-            [ANALYZER_PATH, wav_path],
+            [
+                ANALYZER_PATH,
+                wav_path
+            ],
             capture_output=True,
             text=True,
             timeout=120
         )
 
-        print("STDOUT:", result.stdout)
-        print("STDERR:", result.stderr)
+        print("ANALYZER RETURN:", result.returncode)
+        print("ANALYZER STDOUT:", result.stdout)
+        print("ANALYZER STDERR:", result.stderr)
 
         if result.returncode != 0:
             return {
                 "status": "error",
                 "stage": "analyzer",
-                "stderr": result.stderr[-2000:]
+                "stderr": result.stderr[-3000:]
             }
 
-        # 4. PARSE JSON
+        # =====================================
+        # JSON PARSE
+        # =====================================
+
+        stdout = result.stdout.strip()
+
         try:
-            analysis = json.loads(result.stdout.strip())
-        except Exception:
+            analysis = json.loads(stdout)
+
+        except Exception as json_error:
+
             return {
                 "status": "error",
-                "stage": "json",
-                "raw": result.stdout[-2000:]
+                "stage": "json_parse",
+                "json_error": str(json_error),
+                "raw_output": stdout[-3000:]
             }
+
+        # =====================================
+        # SUCCESS
+        # =====================================
 
         return {
             "status": "ok",
             "analysis": analysis
         }
 
+    # =========================================
+    # GLOBAL FATAL ERROR
+    # =========================================
+
+    except Exception as e:
+
+        trace = traceback.format_exc()
+
+        print("=== FATAL SERVER ERROR ===")
+        print(trace)
+
+        return {
+            "status": "fatal",
+            "error": str(e),
+            "trace": trace[-5000:]
+        }
+
+    # =========================================
+    # CLEANUP
+    # =========================================
+
     finally:
+
         for p in [temp_path, wav_path]:
-            if p and os.path.exists(p):
-                try:
+
+            try:
+
+                if p and os.path.exists(p):
                     os.remove(p)
-                except:
-                    pass
+
+            except Exception as cleanup_error:
+
+                print(
+                    "CLEANUP ERROR:",
+                    str(cleanup_error)
+                )
