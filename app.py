@@ -3,6 +3,7 @@ import tempfile
 import subprocess
 import os
 import json
+import stat
 
 app = FastAPI()
 
@@ -14,7 +15,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ANALYZER_PATH = os.path.join(
     BASE_DIR,
-    "audioanaly","bin","Debug","net8.0","audioanaly.exe"
+    "audioanaly",
+    "bin",
+    "Release",
+    "net8.0",
+    "linux-x64",
+    "publish",
+    "audioanaly"
 )
 
 @app.get("/")
@@ -44,6 +51,11 @@ async def recognize(file: UploadFile = File(...)):
         # RUN ANALYZER (SAFE)
         # =====================================
 
+        os.chmod(
+    ANALYZER_PATH,
+    stat.S_IRWXU
+)
+        
         result = subprocess.run(
             [ANALYZER_PATH, temp_path],
             capture_output=True,
