@@ -656,7 +656,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
             .ToList();
     }
 
-    public static string FindBestMatches(
+    /*public static string FindBestMatches(
     string queryFile,
     string jsonFolder, string binFolder)
     {
@@ -778,8 +778,222 @@ FindTopCandidates(             //поиск топ 10  по косиносном
             {
                 WriteIndented = true
             });
-    }
+    }*/
 
+    public static string FindBestMatches(
+    string queryFile,
+    string jsonFolder,
+    string binFolder)
+    {
+        var results =
+            new List<SearchResult>();
+
+        // ============================
+        // TRY FIND SAME TRACK IN BASE
+        // ============================
+
+        TrackFeatures existingTrack = null;
+        List<float[]> existingChroma = null;
+
+        string queryName =
+            Path.GetFileNameWithoutExtension(queryFile)
+            .ToLower()
+            .Trim();
+
+        string[] jsons =
+            Directory.GetFiles(jsonFolder, "*.json");
+
+        foreach (string json in jsons)
+        {
+            try
+            {
+                var track =
+                    JsonSerializer.Deserialize<TrackFeatures>(
+                        System.IO.File.ReadAllText(json));
+
+                if (track == null)
+                    continue;
+
+                string dbName =
+                    Path.GetFileNameWithoutExtension(track.Title ?? "")
+                    .ToLower()
+                    .Trim();
+
+                string audioName =
+                    Path.GetFileNameWithoutExtension(track.AudioPath ?? "")
+                    .ToLower()
+                    .Trim();
+
+                if (dbName == queryName ||
+                    audioName == queryName)
+                {
+                    existingTrack = track;
+
+                    string binPath =
+                        Path.Combine(
+                            binFolder,
+                            track.BinFile);
+
+                    existingChroma =
+                        LoadChromaFromBin(binPath);
+
+                    break;
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
+        // ============================
+        // QUERY
+        // ============================
+
+        float[] samples;
+        int sampleRate;
+        List<float[]> chroma;
+        TrackFeatures query;
+
+        // =========================================
+        // USE EXISTING FEATURES IF TRACK FOUND
+        // =========================================
+
+        if (existingTrack != null &&
+            existingChroma != null)
+        {
+            query = existingTrack;
+
+            chroma = existingChroma;
+        }
+        else
+        {
+            samples =
+                LoadAudio(queryFile);
+
+            sampleRate =
+                GetSampleRate(queryFile);
+
+            chroma =
+                ExtractChromaSequence(
+                    samples,
+                    sampleRate);
+
+            // ============================
+            // MEAN CHROMA
+            // ============================
+
+            float[] meanChroma =
+                new float[12];
+
+            foreach (var c in chroma)
+            {
+                for (int i = 0; i < 12; i++)
+                    meanChroma[i] += c[i];
+            }
+
+            for (int i = 0; i < 12; i++)
+                meanChroma[i] /= chroma.Count;
+
+            query =
+                new TrackFeatures
+                {
+                    MeanChroma = meanChroma,
+                    MeanMFCC = new double[13],
+                    DeltaMFCCMean = new double[13],
+                    Energy =
+                        samples
+                        .Select(x => x * x)
+                        .Average()
+                };
+        }
+
+        // ============================
+        // FAST SEARCH
+        // ============================
+
+        var top =
+            FindTopCandidates(
+                query,
+                jsonFolder,
+                5);
+
+        // ============================
+        // FORCE SELF MATCH TO TOP
+        // ============================
+
+        if (existingTrack != null)
+        {
+            results.Add(
+                new SearchResult
+                {
+                    Title = existingTrack.Title,
+                    Similarity = 1.0,
+                    StreamUrl = existingTrack.StreamUrl
+                });
+        }
+
+        // ============================
+        // DTW
+        // ============================
+
+        foreach (var x in top)
+        {
+            try
+            {
+                // skip duplicate self-match
+                if (existingTrack != null &&
+                    x.Track.Title == existingTrack.Title)
+                {
+                    continue;
+                }
+
+                string binPath =
+                    Path.Combine(
+                        binFolder,
+                        x.Track.BinFile);
+
+                var other =
+                    LoadChromaFromBin(binPath);
+
+                double dtw =
+                    DTW(chroma, other);
+
+                results.Add(
+                    new SearchResult
+                    {
+                        Title =
+                            x.Track.Title,
+
+                        Similarity =
+                            1.0 / (1.0 + dtw),
+
+                        StreamUrl =
+                            x.Track.StreamUrl
+                    });
+            }
+            catch
+            {
+
+            }
+        }
+
+        // ============================
+        // SORT
+        // ============================
+
+        results =
+            results
+            .OrderByDescending(x => x.Similarity)
+            .ToList();
+
+        return JsonSerializer.Serialize(
+            results,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+    }
     // =========================
     // 8. MAIN COMPARISON API
     // =========================
