@@ -415,7 +415,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
             FindTopCandidates(
                 query,
                 jsonFolder,
-                10);
+                5);
 
         // ============================
         // DTW
