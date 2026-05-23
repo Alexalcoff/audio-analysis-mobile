@@ -9,6 +9,7 @@ using System.Linq;
 using NAudio.Utils;
 using NAudio.Wave.SampleProviders;
 using static System.Net.WebRequestMethods;
+using System.Diagnostics;
 
 
 //заметки на будущее
@@ -22,7 +23,7 @@ public class AudioSimilarityAnalyzer
     // 1. LOAD AUDIO (PCM)
     //функция открывает аудио файл, декодирует его из предыдущего формата в массив чисел
     // =========================
-    public static float[] LoadAudio(string path)
+    /*public static float[] LoadAudio(string path)
     {
         WaveStream reader;
 
@@ -33,7 +34,7 @@ public class AudioSimilarityAnalyzer
         {
             reader = new Mp3FileReader(path);
         }
-        else if (ext == ".m4a")
+        else if (ext == ".wav")
         {
             reader = new WaveFileReader(path);
         }
@@ -67,6 +68,54 @@ public class AudioSimilarityAnalyzer
 
             return samples.ToArray();
         }
+    }*/
+    public static float[] LoadAudio(string path)
+    {
+        string wavPath =
+            Path.ChangeExtension(
+                Path.GetTempFileName(),
+                ".wav"
+            );
+
+        var ffmpeg =
+            new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+
+                Arguments =
+                    $"-i \"{path}\" -ac 1 -ar 44100 \"{wavPath}\" -y",
+
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+        using var process =
+            Process.Start(ffmpeg);
+
+        process.WaitForExit();
+
+        using var reader =
+            new WaveFileReader(wavPath);
+
+        var samples = new List<float>();
+
+        var provider =
+            reader.ToSampleProvider();
+
+        float[] buffer = new float[4096];
+
+        int read;
+
+        while ((read = provider.Read(buffer, 0, buffer.Length)) > 0)
+        {
+            for (int i = 0; i < read; i++)
+                samples.Add(buffer[i]);
+        }
+
+        System.IO.File.Delete(wavPath);
+
+        return samples.ToArray();
     }
 
     public static int GetSampleRate(string path)
