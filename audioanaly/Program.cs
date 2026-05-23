@@ -619,7 +619,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
 
         string[] jsons = Directory.GetFiles(jsonFolder, "*.json");
 
-        double[] q = NormalizeParts(MergeFeatures(query));
+        double[] q = Normalize(NormalizeParts(MergeFeatures(query)));
 
         foreach (string json in jsons)
         {
@@ -1149,7 +1149,7 @@ public class Candidate
 // =========================
 // 9. CONSOLE ENTRY POINT
 // =========================
-class Program 
+/*class Program 
 {
         static void Main(string[] args)
         {
@@ -1176,13 +1176,13 @@ class Program
                         AppDomain.CurrentDomain.BaseDirectory,
                         "json");*/
 
-            string binFolder = "/root/audio-analysis-mobile/audioanaly/bin/Debug/net8.0/bbin";
+           /* string binFolder = "/root/audio-analysis-mobile/audioanaly/bin/Debug/net8.0/bbin";
             /*
                                 Path.Combine(
                                     AppDomain.CurrentDomain.BaseDirectory,
                                     "bin");*/
 
-            string result = 
+          /*  string result = 
                     AudioSimilarityAnalyzer
                     .FindBestMatches(
                         queryFile,
@@ -1203,4 +1203,4 @@ class Program
             }
         }
     
-} 
+} */
