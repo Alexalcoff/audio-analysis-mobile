@@ -428,12 +428,16 @@ public class FileNames
         double[] a,
         double[] b)
     {
-        double dot = 0;
+        double dot = 0, dotA = 0, dotB = 0;
 
         for (int i = 0; i < a.Length; i++)
             dot += a[i] * b[i];
+        for (int i = 0; i < a.Length; i++)
+            dotA += a[i] * a[i];
+        for (int i = 0; i < a.Length; i++)
+            dotB += b[i] * b[i];
 
-        return dot;
+        return dot/dotA/dotB;
     }
 
     // =========================================================
@@ -627,11 +631,11 @@ public class FileNames
                     DTW(queryChroma, other);
 
                 double similarity =
-                    1.0 / (1.0 + dtw);
+                    Math.Exp(-dtw * 3.0);
 
                 // бонус если почти одинаковы
                 similarity *=
-                    0.7 + c.Score * 0.3;
+                    c.Score;
 
                 results.Add(
                     new SearchResulT

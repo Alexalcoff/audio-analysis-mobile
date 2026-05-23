@@ -60,7 +60,7 @@
               "RelativeDocumentMoniker": "FileName.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\FileName.cs",
               "RelativeToolTip": "FileName.cs",
-              "ViewState": "AgIAAOUCAAAAAAAAAAASwPQCAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAJsBAAAAAAAAAAArwK8BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-23T15:57:43.738Z",
               "EditorCaption": ""
@@ -74,8 +74,7 @@
               "ToolTip": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj",
               "RelativeToolTip": "audioanaly.csproj",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-05-21T19:35:45.671Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-21T19:35:45.671Z"
             },
             {
               "$type": "Document",
@@ -99,8 +98,7 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-03T14:47:30.433Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T14:47:30.433Z"
             }
           ]
         }
