@@ -506,7 +506,7 @@ public class AudioSimilarityAnalyzer
         return result;
     }
 
-    public static List<Candidate>
+    /*public static List<Candidate>
 FindTopCandidates(             //поиск топ 10  по косиносному преобразовани.
     TrackFeatures query,
     string jsonFolder,
@@ -552,6 +552,66 @@ FindTopCandidates(             //поиск топ 10  по косиносном
 
         return result
             .OrderByDescending(x => x.Score)
+            .Take(top)
+            .ToList();
+    }*/
+
+    private static double[] Normalize(double[] v)
+    {
+        double mean = v.Average();
+        double std = Math.Sqrt(v.Select(x => (x - mean) * (x - mean)).Average());
+
+        if (std < 1e-12)
+            return v;
+
+        for (int i = 0; i < v.Length; i++)
+            v[i] = (v[i] - mean) / std;
+
+        return v;
+    }
+
+    public static List<Candidate> FindTopCandidates(
+    TrackFeatures query,
+    string jsonFolder,
+    int top = 10)
+    {
+        var result = new List<Candidate>();
+
+        string[] jsons = Directory.GetFiles(jsonFolder, "*.json");
+
+        double[] q = Normalize(MergeFeatures(query));
+
+        foreach (string json in jsons)
+        {
+            try
+            {
+                string text = System.IO.File.ReadAllText(json);
+
+                var track = JsonSerializer.Deserialize<TrackFeatures>(text);
+
+                if (track == null)
+                    continue;
+
+                double[] v = Normalize(MergeFeatures(track));
+
+                double sim = CosineSimilarity(q, v);
+
+                result.Add(new Candidate
+                {
+                    Track = track,
+                    Score = sim
+                });
+            }
+            catch (Exception ex)
+            {
+                // лучше логировать, а не молча игнорировать
+                Console.Error.WriteLine($"JSON error: {json} -> {ex.Message}");
+            }
+        }
+
+        return result
+            .OrderByDescending(x => x.Score)
+            .ThenBy(x => Guid.NewGuid()) // ломает "залипание" при равных score
             .Take(top)
             .ToList();
     }
