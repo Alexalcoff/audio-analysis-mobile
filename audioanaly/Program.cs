@@ -788,13 +788,13 @@ class Program
 
                 string queryFile = args[0];
 
-                string jsonFolder = "/root/audio-analysis-mobile/data/json";
+            string jsonFolder = "/root/audio-analysis-mobile/audioanaly/bin/Debug/net8.0/json";
             /*
             Path.Combine(
                         AppDomain.CurrentDomain.BaseDirectory,
                         "json");*/
 
-            string binFolder = "/root/audio-analysis-mobile/data/bin";
+            string binFolder = "/root/audio-analysis-mobile/audioanaly/bin/Debug/net8.0/bbin";
             /*
                                 Path.Combine(
                                     AppDomain.CurrentDomain.BaseDirectory,
