@@ -6,9 +6,6 @@ import json
 
 app = FastAPI()
 
-# ==============================
-# PATH TO ANALYZER
-# ==============================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ANALYZER_PATH = os.path.join(
@@ -22,66 +19,58 @@ ANALYZER_PATH = os.path.join(
     "audioanaly"
 )
 
-# ==============================
-# HEALTH CHECK
-# ==============================
 @app.get("/")
 def home():
     return {"status": "server running"}
 
 
-# ==============================
-# MAIN ENDPOINT
-# ==============================
 @app.post("/recognize")
 async def recognize(file: UploadFile = File(...)):
 
     temp_path = None
     wav_path = None
 
+
+    print(os.listdir(os.path.dirname(ANALYZER_PATH)))
+    
     try:
-        # =====================================
-        # 1. SAVE TEMP FILE
-        # =====================================
+        # 1. SAVE FILE
         suffix = os.path.splitext(file.filename)[1]
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_audio:
-            temp_audio.write(await file.read())
-            temp_path = os.path.abspath(temp_audio.name)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            tmp.write(await file.read())
+            temp_path = tmp.name
 
-        # WAV OUTPUT PATH
+        temp_path = os.path.abspath(temp_path)
         wav_path = temp_path + ".wav"
 
-        # =====================================
-        # 2. CONVERT TO WAV (FFMPEG)
-        # =====================================
-        ffmpeg_result = subprocess.run(
-            [
-                "ffmpeg",
-                "-y",
-                "-i", temp_path,
-                wav_path
-            ],
+        # 2. CONVERT
+        ffmpeg = subprocess.run(
+            ["ffmpeg", "-y", "-i", temp_path, wav_path],
             capture_output=True,
             text=True
         )
 
-        if ffmpeg_result.returncode != 0:
+        if ffmpeg.returncode != 0:
             return {
                 "status": "error",
                 "stage": "ffmpeg",
-                "stderr": ffmpeg_result.stderr[-2000:]
+                "stderr": ffmpeg.stderr[-2000:]
             }
 
-        # =====================================
-        # 3. RUN C# ANALYZER
-        # =====================================
+        if not os.path.exists(wav_path):
+            return {"status": "error", "stage": "wav_missing"}
+
+        # 3. RUN ANALYZER
         result = subprocess.run(
             [ANALYZER_PATH, wav_path],
             capture_output=True,
             text=True,
             timeout=120
         )
+
+        print("STDOUT:", result.stdout)
+        print("STDERR:", result.stderr)
 
         if result.returncode != 0:
             return {
@@ -90,32 +79,22 @@ async def recognize(file: UploadFile = File(...)):
                 "stderr": result.stderr[-2000:]
             }
 
-        # =====================================
-        # 4. PARSE JSON OUTPUT
-        # =====================================
-        stdout = result.stdout.strip()
-
+        # 4. PARSE JSON
         try:
-            analysis = json.loads(stdout)
+            analysis = json.loads(result.stdout.strip())
         except Exception:
             return {
                 "status": "error",
-                "stage": "json_parse",
-                "raw_output": stdout[-3000:]
+                "stage": "json",
+                "raw": result.stdout[-2000:]
             }
 
-        # =====================================
-        # 5. RESPONSE
-        # =====================================
         return {
             "status": "ok",
             "analysis": analysis
         }
 
     finally:
-        # =====================================
-        # 6. CLEANUP
-        # =====================================
         for p in [temp_path, wav_path]:
             if p and os.path.exists(p):
                 try:
