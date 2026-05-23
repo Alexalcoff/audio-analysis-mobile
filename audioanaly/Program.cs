@@ -788,23 +788,24 @@ class Program
 
                 string queryFile = args[0];
 
-                string jsonFolder =
-                    Path.Combine(
+                string jsonFolder = "/root/audio-analysis-mobile/data/json";
+            /*
+            Path.Combine(
                         AppDomain.CurrentDomain.BaseDirectory,
-                        "json");
+                        "json");*/
 
-            string binFolder = "/root/audio-analysis-mobile/data/json";
+            string binFolder = "/root/audio-analysis-mobile/data/bin";
             /*
                                 Path.Combine(
                                     AppDomain.CurrentDomain.BaseDirectory,
                                     "bin");*/
 
-            string result = "/root/audio-analysis-mobile/data/bin";
-                    /*AudioSimilarityAnalyzer
+            string result = 
+                    AudioSimilarityAnalyzer
                     .FindBestMatches(
                         queryFile,
                         jsonFolder,
-                        binFolder);*/
+                        binFolder);
 
                 Console.WriteLine(result);
             }
