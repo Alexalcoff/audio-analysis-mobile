@@ -586,6 +586,30 @@ FindTopCandidates(             //поиск топ 10  по косиносном
         return v;
     }
 
+    private static double[] NormalizeParts(double[] vector)
+    {
+        if (vector.Length != 39)
+            throw new ArgumentException("Вектор должен иметь длину 39");
+
+        // Разделение
+        double[] part1 = vector.Take(12).ToArray();
+        double[] part2 = vector.Skip(12).Take(13).ToArray();
+        double[] part3 = vector.Skip(25).Take(13).ToArray();
+        double[] part4 = vector.Skip(38).Take(1).ToArray();
+
+        // Нормализация первых трёх частей
+        part1 = Normalize(part1);
+        part2 = Normalize(part2);
+        part3 = Normalize(part3);
+
+        // Объединение обратно
+        return part1
+            .Concat(part2)
+            .Concat(part3)
+            .Concat(part4)
+            .ToArray();
+    }
+
     public static List<Candidate> FindTopCandidates(
     TrackFeatures query,
     string jsonFolder,
@@ -595,7 +619,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
 
         string[] jsons = Directory.GetFiles(jsonFolder, "*.json");
 
-        double[] q = Normalize(MergeFeatures(query));
+        double[] q = NormalizeParts(MergeFeatures(query));
 
         foreach (string json in jsons)
         {
@@ -608,7 +632,7 @@ FindTopCandidates(             //поиск топ 10  по косиносном
                 if (track == null)
                     continue;
 
-                double[] v = Normalize(MergeFeatures(track));
+                double[] v = (MergeFeatures(track));
 
                 double sim = CosineSimilarity(q, v);
 
