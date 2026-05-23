@@ -192,3 +192,5 @@ C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\l
 C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\linux-x64\publish\NAudio.Midi.dll
 C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\linux-x64\publish\NAudio.Wasapi.dll
 C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\linux-x64\publish\NAudio.WinMM.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\linux-x64\publish\NLayer.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\linux-x64\publish\NLayer.NAudioSupport.dll

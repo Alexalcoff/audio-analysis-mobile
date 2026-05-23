@@ -11,6 +11,7 @@
         "dependencies": {
           "MathNet.Numerics": "5.0.0",
           "NAudio": "2.3.0",
+          "NLayer.NAudioSupport": "1.4.0",
           "runtimepack.Microsoft.NETCore.App.Runtime.linux-x64": "8.0.27"
         },
         "runtime": {
@@ -811,6 +812,26 @@
             "fileVersion": "2.3.0.0"
           }
         }
+      },
+      "NLayer/1.15.0": {
+        "runtime": {
+          "lib/netstandard1.3/NLayer.dll": {
+            "assemblyVersion": "1.15.0.0",
+            "fileVersion": "1.15.0.0"
+          }
+        }
+      },
+      "NLayer.NAudioSupport/1.4.0": {
+        "dependencies": {
+          "NAudio.Core": "2.3.0",
+          "NLayer": "1.15.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NLayer.NAudioSupport.dll": {
+            "assemblyVersion": "1.4.0.0",
+            "fileVersion": "1.4.0.0"
+          }
+        }
       }
     }
   },
@@ -873,6 +894,20 @@
       "sha512": "sha512-5G1dRjsZm50T3luyuqcmI2BSvj3K4ZJaD/x776/0Epj88qOsOryDZG40+MufwIk1UFJSFWhRobBqtJYFc8Ss4g==",
       "path": "naudio.winmm/2.3.0",
       "hashPath": "naudio.winmm.2.3.0.nupkg.sha512"
+    },
+    "NLayer/1.15.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-SfNANUqZmrHfow1JObgLDLUZUD9Yp81xjfSPGELN1wewZ9/DEpSXMP1sdnjosuP4IpvEcF8xUn/43agc21RcTw==",
+      "path": "nlayer/1.15.0",
+      "hashPath": "nlayer.1.15.0.nupkg.sha512"
+    },
+    "NLayer.NAudioSupport/1.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-XV+xFJlHgjZT1Z/dLbLg9t0ZLW3iUa+bv/zp/xr5AYt1WEOqYS7akpYSYf6Ia0+Rh4N0DWPLveU+RRTX4rKGyQ==",
+      "path": "nlayer.naudiosupport/1.4.0",
+      "hashPath": "nlayer.naudiosupport.1.4.0.nupkg.sha512"
     }
   },
   "runtimes": {

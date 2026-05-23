@@ -204,3 +204,5 @@ C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\obj\Release\net8.0\l
 C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\obj\Release\net8.0\linux-x64\audioanaly.pdb
 C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\obj\Release\net8.0\linux-x64\audioanaly.genruntimeconfig.cache
 C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\obj\Release\net8.0\linux-x64\ref\audioanaly.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\linux-x64\NLayer.dll
+C:\Users\User\source\repos\audio-analysis-mobile\audioanaly\bin\Release\net8.0\linux-x64\NLayer.NAudioSupport.dll
