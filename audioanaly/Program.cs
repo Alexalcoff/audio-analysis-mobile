@@ -69,7 +69,7 @@ public class AudioSimilarityAnalyzer
             return samples.ToArray();
         }
     }*/
-    public static float[] LoadAudio(string path)
+    /*public static float[] LoadAudio(string path)
     {
         string wavPath =
             Path.ChangeExtension(
@@ -114,6 +114,30 @@ public class AudioSimilarityAnalyzer
         }
 
         System.IO.File.Delete(wavPath);
+
+        return samples.ToArray();
+    }*/
+
+
+    public static float[] LoadAudio(string path)
+    {
+        using var reader =
+            new WaveFileReader(path);
+
+        var samples = new List<float>();
+
+        var provider =
+            reader.ToSampleProvider();
+
+        float[] buffer = new float[4096];
+
+        int read;
+
+        while ((read = provider.Read(buffer, 0, buffer.Length)) > 0)
+        {
+            for (int i = 0; i < read; i++)
+                samples.Add(buffer[i]);
+        }
 
         return samples.ToArray();
     }
@@ -744,45 +768,55 @@ public class Candidate
 // 9. CONSOLE ENTRY POINT
 // =========================
 class Program 
-{ 
-    static void Main(string[] args) 
-    {
-        /*try 
-        { 
-            string filePath = args[0]; 
-            // Пока заглушка:
-            // позже здесь будет реальный анализ
-            var result = new { title = "Unknown", similarity = 0.82, frames = 1240 }; 
-            Console.WriteLine( JsonSerializer.Serialize(result) ); 
-        } catch (Exception ex) { Console.Error.WriteLine(ex.Message); 
-            Environment.Exit(1); 
-        } */
-        /*string fileA = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\Fallen down on my handmade piano! [ZjipSUkV2l4].mp3";
-        //string fileB = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\Fallen down on my handmade piano! [ZjipSUkV2l4].mp3";
-        string fileB = "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Music_data\\kris_piano_waitingroom - Deltarune Chapter 4 [MEXiaOHeYEU].mp3";
-        Console.WriteLine(AudioSimilarityAnalyzer.Compare(fileA, fileB));*/
+{
+        static void Main(string[] args)
+        {
+            try
+            {
+                if (args.Length == 0)
+                {
+                    Console.WriteLine(
+                        JsonSerializer.Serialize(
+                            new
+                            {
+                                status = "error",
+                                message = "No input file"
+                            }));
 
-            string jsonFolder =
-                Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "json");
+                    return;
+                }
 
-        string binFolder =
-                Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "bin");
+                string queryFile = args[0];
 
-        string queryFile =
-                Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    "test.mp3");
+                string jsonFolder =
+                    Path.Combine(
+                        AppDomain.CurrentDomain.BaseDirectory,
+                        "json");
 
-            string result =
-                AudioSimilarityAnalyzer
-                .FindBestMatches(
-                    queryFile,
-                    jsonFolder, binFolder);
+                string binFolder =
+                    Path.Combine(
+                        AppDomain.CurrentDomain.BaseDirectory,
+                        "bin");
 
-            Console.WriteLine(result);
+                string result =
+                    AudioSimilarityAnalyzer
+                    .FindBestMatches(
+                        queryFile,
+                        jsonFolder,
+                        binFolder);
+
+                Console.WriteLine(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            status = "error",
+                            message = ex.ToString()
+                        }));
+            }
         }
-    } 
+    
+} 
