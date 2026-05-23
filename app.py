@@ -44,6 +44,7 @@ async def recognize(file: UploadFile = File(...)):
 
         temp_audio.write(await file.read())
         temp_path = temp_audio.name
+        temp_path = os.path.abspath(temp_path)
 
     try:
 
@@ -57,11 +58,12 @@ async def recognize(file: UploadFile = File(...)):
 )
         
         result = subprocess.run(
-            [ANALYZER_PATH, temp_path],
-            capture_output=True,
-            text=True,
-            timeout=60  
-        )
+    [ANALYZER_PATH, temp_path],
+    capture_output=True,
+    text=True,
+    timeout=120,
+    env=os.environ.copy()
+)
 
         # =====================================
         # ERROR CHECK
@@ -84,9 +86,10 @@ async def recognize(file: UploadFile = File(...)):
         except Exception:
             return {
                 "status": "error",
-                "message": "Invalid JSON from analyzer",
-                "raw_output": stdout[-2000:]
+                "message": result.stderr,
+                "raw_output": result.stdout
             }
+
 
         # =====================================
         # RESPONSE
