@@ -793,17 +793,18 @@ class Program
                         AppDomain.CurrentDomain.BaseDirectory,
                         "json");
 
-                string binFolder =
-                    Path.Combine(
-                        AppDomain.CurrentDomain.BaseDirectory,
-                        "bin");
+            string binFolder = "/root/audio-analysis-mobile/data/json";
+            /*
+                                Path.Combine(
+                                    AppDomain.CurrentDomain.BaseDirectory,
+                                    "bin");*/
 
-                string result =
-                    AudioSimilarityAnalyzer
+            string result = "/root/audio-analysis-mobile/data/bin";
+                    /*AudioSimilarityAnalyzer
                     .FindBestMatches(
                         queryFile,
                         jsonFolder,
-                        binFolder);
+                        binFolder);*/
 
                 Console.WriteLine(result);
             }
