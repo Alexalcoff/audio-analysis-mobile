@@ -437,7 +437,7 @@ public class FileNames
         for (int i = 0; i < a.Length; i++)
             dotB += b[i] * b[i];
 
-        return dot/dotA/dotB;
+        return dot/Math.Sqrt(dotA)/Math.Sqrt(dotB);
     }
 
     // =========================================================
@@ -659,7 +659,7 @@ public class FileNames
                 .OrderByDescending(x => x.Similarity)
                 .First())
             .OrderByDescending(x => x.Similarity)
-            .Take(10)
+            .Take(15)
             .ToList();
 
         return JsonSerializer.Serialize(
