@@ -640,9 +640,9 @@ public class FileNames
                 results.Add(
                     new SearchResulT
                     {
-                        Title = c.Track.Title,
-                        Similarity = similarity,
-                        StreamUrl = c.Track.StreamUrl
+                        title = c.Track.Title,
+                        similarity = similarity,
+                        streamUrl = c.Track.StreamUrl
                     });
             }
             catch
@@ -654,11 +654,11 @@ public class FileNames
         // remove duplicates
         results =
             results
-            .GroupBy(x => x.Title)
+            .GroupBy(x => x.title)
             .Select(g => g
-                .OrderByDescending(x => x.Similarity)
+                .OrderByDescending(x => x.similarity)
                 .First())
-            .OrderByDescending(x => x.Similarity)
+            .OrderByDescending(x => x.similarity)
             .Take(15)
             .ToList();
 
@@ -706,11 +706,11 @@ public class TrackFeatureS
 
 public class SearchResulT
 {
-    public string Title { get; set; }
+    public string title { get; set; }
 
-    public double Similarity { get; set; }
+    public double similarity { get; set; }
 
-    public string StreamUrl { get; set; }
+    public string streamUrl { get; set; }
 }
 
 public class CandidatE
