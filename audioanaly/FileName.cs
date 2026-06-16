@@ -659,7 +659,7 @@ public class FileNames
                 .OrderByDescending(x => x.similarity)
                 .First())
             .OrderByDescending(x => x.similarity)
-            .Take(15)
+            .Take(PRESELECT_COUNT)
             .ToList();
 
         return JsonSerializer.Serialize(
