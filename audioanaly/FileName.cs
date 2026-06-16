@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.IO;
 using MathNet.Numerics.IntegralTransforms;
 using NAudio.Wave;
+using MathNet.Numerics.Integration;
 
 public class FileNames
 {
@@ -169,6 +170,209 @@ public class FileNames
         Normalize(chroma);
 
         return chroma;
+    }
+
+    // =========================================================
+    // POWER SPECTRUM
+    // =========================================================
+    public static double[] PowerSpectrum(Complex[] fft)
+    {
+        int half = fft.Length / 2;
+
+        double[] power = new double[half];
+
+        for (int i = 0; i < half; i++)
+        {
+            double mag = fft[i].Magnitude;
+
+            power[i] = mag * mag;
+        }
+
+        return power;
+    }
+
+    // =========================================================
+    // MEL FILTER BANK
+    // =========================================================
+    public static double[][] CreateMelFilterBank(
+        int sampleRate,
+        int fftSize,
+        int numFilters = 26)
+    {
+        int half = fftSize / 2;
+
+        double lowMel = 0;
+
+        double highMel =
+            2595 *
+            Math.Log10(
+                1 + (sampleRate / 2.0) / 700);
+
+        double[] melPoints =
+            new double[numFilters + 2];
+
+        for (int i = 0; i < melPoints.Length; i++)
+        {
+            melPoints[i] =
+                lowMel +
+                (highMel - lowMel) *
+                i / (numFilters + 1);
+        }
+
+        double[] hzPoints = melPoints
+            .Select(m =>
+                700 *
+                (Math.Pow(10, m / 2595) - 1))
+            .ToArray();
+
+        int[] bins = hzPoints
+            .Select(f =>
+                (int)((fftSize + 1) * f / sampleRate))
+            .ToArray();
+
+        double[][] filters =
+            new double[numFilters][];
+
+        for (int i = 0; i < numFilters; i++)
+        {
+            filters[i] = new double[half];
+
+            for (int j = bins[i]; j < bins[i + 1]; j++)
+            {
+                filters[i][j] =
+                    (j - bins[i]) /
+                    (double)(bins[i + 1] - bins[i]);
+            }
+
+            for (int j = bins[i + 1]; j < bins[i + 2]; j++)
+            {
+                filters[i][j] =
+                    (bins[i + 2] - j) /
+                    (double)(bins[i + 2] - bins[i + 1]);
+            }
+        }
+
+        return filters;
+    }
+
+    // =========================================================
+    // APPLY MEL FILTERS
+    // =========================================================
+    public static double[] ApplyMelFilters(
+        double[] powerSpectrum,
+        double[][] filters)
+    {
+        double[] melEnergies =
+            new double[filters.Length];
+
+        for (int i = 0; i < filters.Length; i++)
+        {
+            double sum = 0;
+
+            for (int j = 0; j < powerSpectrum.Length; j++)
+            {
+                sum +=
+                    powerSpectrum[j] *
+                    filters[i][j];
+            }
+
+            melEnergies[i] =
+                Math.Log(sum + 1e-10);
+        }
+
+        return melEnergies;
+    }
+
+    // =========================================================
+    // DCT
+    // =========================================================
+    public static double[] DCT(
+        double[] input,
+        int numCoeffs = 13)
+    {
+        int N = input.Length;
+
+        double[] result =
+            new double[numCoeffs];
+
+        for (int k = 0; k < numCoeffs; k++)
+        {
+            double sum = 0;
+
+            for (int n = 0; n < N; n++)
+            {
+                sum +=
+                    input[n] *
+                    Math.Cos(
+                        Math.PI *
+                        k *
+                        (n + 0.5) /
+                        N);
+            }
+
+            result[k] = sum;
+        }
+
+        return result;
+    }
+
+    // =========================================================
+    // MFCC
+    // =========================================================
+    public static double[] MFCC(
+        float[] frame,
+        int sampleRate,
+        double[][] melFilters)
+    {
+        var fft = FFT(frame);
+
+        var power = PowerSpectrum(fft);
+
+        var mel =
+            ApplyMelFilters(power, melFilters);
+
+        return DCT(mel, 13);
+    }
+
+    // =========================================================
+    // DELTA MFCC
+    // =========================================================
+    public static double[] Delta(
+        List<double[]> mfcc,
+        int t,
+        int N = 2)
+    {
+        int dim = mfcc[0].Length;
+
+        double[] delta = new double[dim];
+
+        double denominator = 0;
+
+        for (int n = 1; n <= N; n++)
+            denominator += n * n;
+
+        denominator *= 2;
+
+        for (int k = 0; k < dim; k++)
+        {
+            double sum = 0;
+
+            for (int n = 1; n <= N; n++)
+            {
+                int prev = Math.Max(0, t - n);
+
+                int next =
+                    Math.Min(mfcc.Count - 1, t + n);
+
+                sum +=
+                    n *
+                    (mfcc[next][k] - mfcc[prev][k]);
+            }
+
+            delta[k] = sum / denominator;
+        }
+
+        return delta;
     }
 
     // =========================================================
@@ -474,6 +678,25 @@ public class FileNames
         return result;
     }
 
+    public static double[] MeanVector(
+    List<double[]> seq)
+    {
+        int dim = seq[0].Length;
+
+        double[] mean = new double[dim];
+
+        foreach (var frame in seq)
+        {
+            for (int i = 0; i < dim; i++)
+                mean[i] += frame[i];
+        }
+
+        for (int i = 0; i < dim; i++)
+            mean[i] /= seq.Count;
+
+        return mean;
+    }
+
     // =========================================================
     // FEATURE EXTRACTION
     // =========================================================
@@ -509,13 +732,58 @@ public class FileNames
 
         Normalize(meanChroma);
 
+        var frames =
+            Frame(samples);
+
+        // -----------------------------
+        // MEL FILTERS
+        // -----------------------------
+        var melFilters =
+            CreateMelFilterBank(
+                sampleRate,
+                1024);
+
+        // -----------------------------
+        // MFCC
+        // -----------------------------
+        var mfccSeq =
+            new List<double[]>();
+
+        foreach (var frame in frames)
+        {
+            var mfcc =
+                MFCC(
+                    frame,
+                    sampleRate,
+                    melFilters);
+
+            mfccSeq.Add(mfcc);
+        }
+
+        // -----------------------------
+        // DELTA MFCC
+        // -----------------------------
+        var deltaSeq =
+            new List<double[]>();
+
+        for (int i = 0; i < mfccSeq.Count; i++)
+        {
+            deltaSeq.Add(
+                Delta(mfccSeq, i));
+        }
+
+        double[] MFCCC = MeanVector(mfccSeq);
+
+        double[] DeltaMFCC = MeanVector(deltaSeq);
+
+
         return new TrackFeatureS
         {
             MeanChroma = meanChroma,
 
-            MeanMFCC = new double[13],
+            MeanMFCC = MFCCC,
 
-            DeltaMFCCMean = new double[13],
+            DeltaMFCCMean = DeltaMFCC,
 
             Energy =
                 samples
