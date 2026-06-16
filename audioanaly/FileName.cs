@@ -17,7 +17,7 @@ public class FileNames
     private const int FRAME_SIZE = 1024;
     private const int HOP_SIZE = 512;
 
-    private const int PRESELECT_COUNT = 10;
+    private const int PRESELECT_COUNT = 20;
 
     // =========================================================
     // AUDIO LOAD
@@ -902,8 +902,6 @@ public class FileNames
                     Math.Exp(-dtw * 3.0);
 
                 // бонус если почти одинаковы
-                similarity *=
-                    c.Score;
 
                 results.Add(
                     new SearchResulT
