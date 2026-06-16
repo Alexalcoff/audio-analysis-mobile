@@ -11,12 +11,12 @@
       "RelativeMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|c:\\users\\user\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
-      "RelativeMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|solutionrelative:audioanaly.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|c:\\users\\user\\source\\repos\\audio-analysis-mobile\\audioanaly\\duplicatore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|solutionrelative:duplicatore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|c:\\users\\user\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{FF62FC5F-19E0-47CE-94DC-3B78D2B88C26}|audioanaly.csproj|solutionrelative:audioanaly.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -60,14 +60,14 @@
               "RelativeDocumentMoniker": "FileName.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\FileName.cs",
               "RelativeToolTip": "FileName.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAAwCoAAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAAFACAAAAAAAAAAAgwBIAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-23T15:57:43.738Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "audioanaly",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\audioanaly.csproj",
               "RelativeDocumentMoniker": "audioanaly.csproj",
@@ -78,7 +78,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "Duplicatore.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\audio-analysis-mobile\\audioanaly\\Duplicatore.cs",
               "RelativeDocumentMoniker": "Duplicatore.cs",

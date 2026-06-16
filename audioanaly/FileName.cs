@@ -13,10 +13,10 @@ public class FileNames
     // CONFIG
     // =========================================================
 
-    private const int FRAME_SIZE = 2048;
+    private const int FRAME_SIZE = 1024;
     private const int HOP_SIZE = 512;
 
-    private const int PRESELECT_COUNT = 25;
+    private const int PRESELECT_COUNT = 10;
 
     // =========================================================
     // AUDIO LOAD
