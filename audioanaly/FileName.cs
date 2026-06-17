@@ -7,6 +7,7 @@ using System.IO;
 using MathNet.Numerics.IntegralTransforms;
 using NAudio.Wave;
 using MathNet.Numerics.Integration;
+using System.Text.RegularExpressions;
 
 public class FileNames
 {
@@ -19,11 +20,27 @@ public class FileNames
 
     private const int PRESELECT_COUNT = 5;
 
-    // =========================================================
-    // AUDIO LOAD
-    // =========================================================
+    
 
-    public static float[] LoadAudio(string path)
+private static string ExtractYoutubeId(string text)
+{
+    if (string.IsNullOrWhiteSpace(text))
+        return "";
+
+    var match = Regex.Match(
+        text,
+        @"\[([A-Za-z0-9_-]{11})\]");
+
+    return match.Success
+        ? match.Groups[1].Value
+        : "";
+}
+
+// =========================================================
+// AUDIO LOAD
+// =========================================================
+
+public static float[] LoadAudio(string path)
     {
         using var reader =
             new AudioFileReader(path);
@@ -964,17 +981,19 @@ public class FileNames
                 if (track == null)
                     continue;
 
-                if (string.Equals(
-                        track.Title,
-                        queryTitle,
-                        StringComparison.OrdinalIgnoreCase))
+                string queryId =
+    ExtractYoutubeId(queryTitle);
+
+                string trackId =
+                    ExtractYoutubeId(track.Title);
+
+                if (!string.IsNullOrEmpty(queryId) &&
+                    queryId == trackId)
                 {
                     bool alreadyExists =
                         top.Any(x =>
-                            string.Equals(
-                                x.Track.Title,
-                                track.Title,
-                                StringComparison.OrdinalIgnoreCase));
+                            ExtractYoutubeId(
+                                x.Track.Title) == queryId);
 
                     if (!alreadyExists)
                     {
@@ -982,10 +1001,12 @@ public class FileNames
                             new CandidatE
                             {
                                 Track = track,
-                                Score = 9999
+                                Score = double.MaxValue
                             });
                     }
 
+                    Console.Error.WriteLine(
+                        $"FORCED MATCH: {track.Title}");
 
                     break;
                 }
