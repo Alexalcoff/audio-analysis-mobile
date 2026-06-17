@@ -65,20 +65,31 @@ async def recognize(file: UploadFile = File(...)):
         # SAVE INPUT FILE
         # =====================================
 
-        suffix = os.path.splitext(file.filename)[1]
+        # =====================================
+# SAVE INPUT FILE
+# =====================================
 
-        with tempfile.NamedTemporaryFile(
-            delete=False,
-            suffix=suffix
-        ) as tmp:
+        original_name = os.path.basename(file.filename)
 
-            content = await file.read()
-            tmp.write(content)
+        name_without_ext = os.path.splitext(original_name)[0]
+        extension = os.path.splitext(original_name)[1]
 
-            temp_path = os.path.abspath(tmp.name)
+        temp_dir = tempfile.gettempdir()
 
+        temp_path = os.path.join(
+            temp_dir,
+            original_name
+        )
+
+        content = await file.read()
+
+        with open(temp_path, "wb") as f:
+            f.write(content)
+
+        temp_path = os.path.abspath(temp_path)
+
+        print("ORIGINAL NAME:", original_name)
         print("TEMP PATH:", temp_path)
-        print("TEMP EXISTS:", os.path.exists(temp_path))
 
         # =====================================
         # WAV OUTPUT

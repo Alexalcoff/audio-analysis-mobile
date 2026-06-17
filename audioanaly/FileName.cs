@@ -925,6 +925,10 @@ public class FileNames
         string jsonFolder,
         string binFolder)
     {
+
+        string queryTitle =
+    Path.GetFileNameWithoutExtension(queryFile);
+
         List<SearchResulT> results =
             new();
 
@@ -948,6 +952,50 @@ public class FileNames
                 query,
                 jsonFolder,
                 PRESELECT_COUNT);
+
+        foreach (string json in Directory.GetFiles(jsonFolder, "*.json"))
+        {
+            try
+            {
+                TrackFeatureS track =
+                    JsonSerializer.Deserialize<TrackFeatureS>(
+                        File.ReadAllText(json));
+
+                if (track == null)
+                    continue;
+
+                if (string.Equals(
+                        track.Title,
+                        queryTitle,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    bool alreadyExists =
+                        top.Any(x =>
+                            string.Equals(
+                                x.Track.Title,
+                                track.Title,
+                                StringComparison.OrdinalIgnoreCase));
+
+                    if (!alreadyExists)
+                    {
+                        top.Add(
+                            new CandidatE
+                            {
+                                Track = track,
+                                Score = 9999
+                            });
+                    }
+
+                    Console.WriteLine(
+                        $"FORCED MATCH: {track.Title}");
+
+                    break;
+                }
+            }
+            catch
+            {
+            }
+        }
 
         // =========================
         // DTW FINAL
