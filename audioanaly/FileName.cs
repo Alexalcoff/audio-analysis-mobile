@@ -986,8 +986,6 @@ public class FileNames
                             });
                     }
 
-                    Console.WriteLine(
-                        $"FORCED MATCH: {track.Title}");
 
                     break;
                 }
