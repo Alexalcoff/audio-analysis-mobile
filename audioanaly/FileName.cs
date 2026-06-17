@@ -20,9 +20,31 @@ public class FileNames
 
     private const int PRESELECT_COUNT = 5;
 
-    
 
-private static string ExtractYoutubeId(string text)
+    private static string NormalizeTitle(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            return "";
+
+        title = Path.GetFileNameWithoutExtension(title);
+
+        title = title
+            .Replace('_', ' ')
+            .Replace('＂', '"')
+            .Replace('“', '"')
+            .Replace('”', '"')
+            .Replace('’', '\'')
+            .Replace('‘', '\'');
+
+        title = Regex.Replace(
+            title,
+            @"\s+",
+            " ");
+
+        return title.Trim();
+    }
+
+    private static string ExtractYoutubeId(string text)
 {
     if (string.IsNullOrWhiteSpace(text))
         return "";
@@ -34,6 +56,30 @@ private static string ExtractYoutubeId(string text)
     return match.Success
         ? match.Groups[1].Value
         : "";
+}
+
+private static bool IsSameTrack(
+    string queryTitle,
+    string dbTitle)
+{
+    string queryId =
+        ExtractYoutubeId(queryTitle);
+
+    string dbId =
+        ExtractYoutubeId(dbTitle);
+
+    // если оба ID есть — сравниваем по ним
+    if (!string.IsNullOrWhiteSpace(queryId) &&
+        !string.IsNullOrWhiteSpace(dbId))
+    {
+        return queryId == dbId;
+    }
+
+    // иначе сравнение по имени
+    return string.Equals(
+        NormalizeTitle(queryTitle),
+        NormalizeTitle(dbTitle),
+        StringComparison.OrdinalIgnoreCase);
 }
 
 // =========================================================
@@ -970,7 +1016,7 @@ public static float[] LoadAudio(string path)
                 jsonFolder,
                 PRESELECT_COUNT);
 
-        foreach (string json in Directory.GetFiles(jsonFolder, "*.json"))
+        /*foreach (string json in Directory.GetFiles(jsonFolder, "*.json"))
         {
             try
             {
@@ -1013,6 +1059,48 @@ public static float[] LoadAudio(string path)
             }
             catch
             {
+            }
+        }*/
+
+        foreach (string json in Directory.GetFiles(jsonFolder, "*.json"))
+        {
+            try
+            {
+                TrackFeatureS track =
+                    JsonSerializer.Deserialize<TrackFeatureS>(
+                        File.ReadAllText(json));
+
+                if (track == null)
+                    continue;
+
+                if (IsSameTrack(
+                        queryTitle,
+                        track.Title))
+                {
+                    bool alreadyExists =
+                        top.Any(x =>
+                            IsSameTrack(
+                                queryTitle,
+                                x.Track.Title));
+
+                    if (!alreadyExists)
+                    {
+                        top.Add(
+                            new CandidatE
+                            {
+                                Track = track,
+                                Score = double.MaxValue
+                            });
+                    }
+
+
+                    break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(
+                    $"FORCED MATCH ERROR: {ex.Message}");
             }
         }
 
