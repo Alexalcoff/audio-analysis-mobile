@@ -161,7 +161,7 @@ public class FileNames
                 fft[i].Magnitude;
 
             // лог-компрессия
-            mag = Math.Log10(1 + mag);
+            //mag = Math.Log10(1 + mag);
 
             chroma[note] +=
                 (float)mag;
