@@ -18,7 +18,7 @@ public class FileNames
     private const int FRAME_SIZE = 1024;
     private const int HOP_SIZE = 512;
 
-    private const int PRESELECT_COUNT = 5;
+    private const int PRESELECT_COUNT = 10;
 
 
     private static string NormalizeTitle(string title)
