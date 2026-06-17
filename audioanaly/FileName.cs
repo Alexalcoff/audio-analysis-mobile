@@ -17,7 +17,7 @@ public class FileNames
     private const int FRAME_SIZE = 1024;
     private const int HOP_SIZE = 512;
 
-    private const int PRESELECT_COUNT = 20;
+    private const int PRESELECT_COUNT = 5;
 
     // =========================================================
     // AUDIO LOAD
