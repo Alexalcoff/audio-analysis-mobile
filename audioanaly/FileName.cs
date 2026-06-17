@@ -439,7 +439,7 @@ public class FileNames
     // DTW
     // =========================================================
 
-    public static double DTW(
+    /*public static double DTW(
         List<float[]> A,
         List<float[]> B)
     {
@@ -528,6 +528,79 @@ public class FileNames
         return
             prev[m - 1] /
             Math.Max(prevLen[m - 1], 1);
+    }*/
+
+    public static double DTW(
+    List<float[]> A,
+    List<float[]> B)
+    {
+        int n = A.Count;
+        int m = B.Count;
+
+        if (n == 0 || m == 0)
+            return double.MaxValue;
+
+        int w =
+            Math.Max(
+                50,
+                Math.Abs(n - m));
+
+        double[] prev = new double[m];
+        double[] curr = new double[m];
+
+        for (int j = 0; j < m; j++)
+            prev[j] = double.PositiveInfinity;
+
+        prev[0] =
+            Distance(A[0], B[0]);
+
+        // первая строка
+        for (int j = 1; j < Math.Min(m, w + 1); j++)
+        {
+            prev[j] =
+                prev[j - 1] +
+                Distance(A[0], B[j]);
+        }
+
+        for (int i = 1; i < n; i++)
+        {
+            Array.Fill(curr, double.PositiveInfinity);
+
+            int start =
+                Math.Max(0, i - w);
+
+            int end =
+                Math.Min(m - 1, i + w);
+
+            for (int j = start; j <= end; j++)
+            {
+                double cost =
+                    Distance(A[i], B[j]);
+
+                if (j == 0)
+                {
+                    curr[0] =
+                        prev[0] + cost;
+
+                    continue;
+                }
+
+                curr[j] =
+                    cost +
+                    Math.Min(
+                        Math.Min(
+                            prev[j],
+                            curr[j - 1]),
+                        prev[j - 1]);
+            }
+
+            (prev, curr) =
+                (curr, prev);
+        }
+
+        return
+            prev[m - 1] /
+            (n + m);
     }
 
     // =========================================================
